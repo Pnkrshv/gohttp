@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -25,12 +26,16 @@ func main() {
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case http.MethodGet: 
-	// to do 
+	case http.MethodGet:
+		getUsers(w, r)
 	case http.MethodPost:
 		// to do
+	default:
+		w.WriteHeader(http.StatusNotImplemented)
 	}
+}
 
+func getUsers(w http.ResponseWriter, r *http.Request) {
 	resp, err := json.Marshal(users)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -38,4 +43,17 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(resp)
+}
+
+func addUser(w http.ResponseWriter, r *http.Request){
+	reqBytes, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var user User
+	if err = json.Unmarshal(reqBytes, &user); err != nil {
+		log.Fatal(err)
+	}
 }
